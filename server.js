@@ -51,7 +51,7 @@ app.post("/upload-image", upload.single("resim"), async (req, res) => {
       return res.status(400).json({ error: "Resim dosyası gerekli" });
     }
 
-    const resim_url = `/uploads/${req.file.filename}`;
+    const resim_url = `https://resim.hggrup.com/uploads/${req.file.filename}`;
     const aktif = true;
 
     const siranoQuery = await pool.query(
