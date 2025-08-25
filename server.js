@@ -8,6 +8,20 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ CORS Middleware - Bu satırları ekleyin
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Tüm domainlere izin ver
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // OPTIONS preflight request'leri için
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -37,7 +51,7 @@ app.post("/upload-image", upload.single("resim"), async (req, res) => {
       return res.status(400).json({ error: "Resim dosyası gerekli" });
     }
 
-    const resim_url = `https://resim.hggrup.com/uploads/${req.file.filename}`;
+    const resim_url = `/uploads/${req.file.filename}`;
     const aktif = true;
 
     const siranoQuery = await pool.query(
@@ -61,7 +75,6 @@ app.post("/upload-image", upload.single("resim"), async (req, res) => {
     res.status(500).json({ error: "Sunucu hatası" });
   }
 });
-
 
 // ✅ 2. Resim Silme
 app.delete("/delete-image/:id", async (req, res) => {
@@ -92,7 +105,6 @@ app.delete("/delete-image/:id", async (req, res) => {
     res.status(500).json({ error: "Sunucu hatası" });
   }
 });
-
 
 // ✅ 3. Resim Güncelleme (yeni dosya yükleyerek)
 app.put("/update-image/:id", upload.single("resim"), async (req, res) => {
